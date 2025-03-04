@@ -31,11 +31,21 @@ class _HomeScreenState extends State<HomeScreen>
   int? designatedPersonId;
 
   final OrderService _orderService = OrderService();
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await _orderService.loadDataFromDatabase();
+    print('loading DATA!!!');
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -52,6 +62,14 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('HANSA - Pedidos para Oficina'),
@@ -81,15 +99,14 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void _addOrderAndUpdateUI(int userId, int itemId, int quantity) {
-    setState(() {
-      _orderService.addOrder(userId, itemId, quantity);
-    });
+  Future<void> _addOrderAndUpdateUI(
+      int userId, int itemId, int quantity) async {
+    await _orderService.addOrder(userId, itemId, quantity);
+    setState(() {});
   }
 
-  void _recordPaymentAndUpdateUI(int orderId, double amountPaid) {
-    setState(() {
-      _orderService.recordPayment(orderId, amountPaid);
-    });
+  Future<void> _recordPaymentAndUpdateUI(int orderId, double amountPaid) async {
+    await _orderService.recordPayment(orderId, amountPaid);
+    setState(() {});
   }
 }
